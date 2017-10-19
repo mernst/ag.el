@@ -87,6 +87,11 @@ This requires the ag command to support --color-match, which is only in v0.14+"
   :type 'boolean
   :group 'ag)
 
+(defcustom ag-regexp-default t
+  "Non-nil means ag defaults to regexp rather than literal string search."
+  :type 'boolean
+  :group 'ag)
+
 (defcustom ag-reuse-buffers nil
   "Non-nil means we reuse the existing search results buffer or
 dired results buffer, rather than creating one buffer per unique
@@ -424,13 +429,22 @@ matched literally."
 
 ;;;###autoload
 (defun ag (string directory)
+  "Search using ag in a given DIRECTORY for a given search term STRING,
+with STRING defaulting to the symbol under point.
+
+If called with a prefix, prompts for flags to pass to ag."
+  (interactive (list (ag/read-from-minibuffer "Search term")
+                     (read-directory-name "Directory: ")))
+  (ag/search string directory :regexp ag-regexp-default))
+
+(defun ag-literal (string directory)
   "Search using ag in a given DIRECTORY for a given literal search STRING,
 with STRING defaulting to the symbol under point.
 
 If called with a prefix, prompts for flags to pass to ag."
   (interactive (list (ag/read-from-minibuffer "Search string")
                      (read-directory-name "Directory: ")))
-  (ag/search string directory))
+  (ag/search string directory :regexp nil))
 
 ;;;###autoload
 (defun ag-files (string file-type directory)
